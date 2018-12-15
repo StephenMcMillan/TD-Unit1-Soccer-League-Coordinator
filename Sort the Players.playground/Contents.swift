@@ -179,7 +179,10 @@ func calculateAverageHeight(ofTeam players: [[String:String]]) -> Double {
 
     // Potentially a crash hotspot due to forced unwrapping
     for player in players {
-        runningTotal += Double(player["height"]!)!
+        
+        if let playerHeight = player["height"] {
+            runningTotal += Double(playerHeight) ?? 0.0
+        }
     }
 
     return runningTotal / Double(players.count)
@@ -203,23 +206,24 @@ func generatePracticeLetters(forTeam team: (teamName: String, players: [[String:
     var letters: [String] = []
     
     for player in team.players {
-        let name = player["name"]!
-        let guardians = player["guardians"]!
         
-        let playerLetter =
-        """
-        Dear \(guardians)
-        We are pleased to inform you that \(name) has successfully secured a place in \(team.teamName).
-        
-        The first practise session for \(team.teamName) is scheduled to take place on \(team.practiseDate) at \(team.practiseTime). If your child is unable to attend on this date, please let us know as soon as possible. All neccessary equipment will be provided and the session will last approximetly 2 hours.
-        
-        We look forward to meeting \(name).
-        
-        Regards,
-        - The Soccer League
-        """
-        
-        letters.append(playerLetter)
+        if let name = player["name"], let guardians = player["guardians"] {
+            
+            let playerLetter =
+            """
+            Dear \(guardians)
+            We are pleased to inform you that \(name) has successfully secured a place in \(team.teamName).
+            
+            The first practise session for \(team.teamName) is scheduled to take place on \(team.practiseDate) at \(team.practiseTime). If your child is unable to attend on this date, please let us know as soon as possible. All neccessary equipment will be provided and the session will last approximetly 2 hours.
+            
+            We look forward to meeting \(name).
+            
+            Regards,
+            - The Soccer League
+            """
+            
+            letters.append(playerLetter)
+        }
     }
     
     return letters
