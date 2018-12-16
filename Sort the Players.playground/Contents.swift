@@ -120,25 +120,7 @@ let players = [["name": "Joe Smith",
  Skip to letters.
 */
 
-func separateByExperience(players: [[String: String]]) -> (experienced: [[String: String]], inexperienced: [[String: String]]) {
-    
-    var experiencedPlayers: [[String: String]] = []
-    var inexperiencedPlayers: [[String: String]] = []
-    
-    // Shuffling the players allows for random teams each time and allows for correcting of average height.
-    for player in players.shuffled() {
-        if player["hasSoccerExperience"]?.uppercased() == "YES" {
-            experiencedPlayers.append(player)
-        } else {
-            inexperiencedPlayers.append(player)
-        }
-    }
-    
-    return (experiencedPlayers, inexperiencedPlayers)
-}
-
-
-func createThreeTeamsFrom(players: [[String: String]]) -> (teamA: [[String: String]], teamB: [[String: String]], teamC: [[String: String]]) {
+func createThreeTeamsFrom(players: (experienced: [[String: String]], inexperienced: [[String: String]])) -> (teamA: [[String: String]], teamB: [[String: String]], teamC: [[String: String]]) {
     
     var teamA: [[String: String]] = []
     var teamB: [[String: String]] = []
@@ -165,9 +147,9 @@ func createThreeTeamsFrom(players: [[String: String]]) -> (teamA: [[String: Stri
         }
     }
     
-    let partiallySortedPlayers = separateByExperience(players: players)
-    assignToTeam(players: partiallySortedPlayers.experienced)
-    assignToTeam(players: partiallySortedPlayers.inexperienced)
+    // Shuffling the players here means that the logic for repeat until avg height < 1.5 will work as expected
+    assignToTeam(players: players.experienced.shuffled())
+    assignToTeam(players: players.inexperienced.shuffled())
 
     return (teamA, teamB, teamC)
 }
@@ -235,9 +217,19 @@ var teamDragons: [[String: String]] = []
 var teamSharks: [[String: String]] = []
 var teamRaptors: [[String: String]] = []
 
-// Start of execution
+// League Players are sorted based on their experience
+var leaguePlayers: (experienced: [[String: String]], inexperienced: [[String: String]]) = ([], [])
+
+for player in players.shuffled() {
+    if player["hasSoccerExperience"]?.uppercased() == "YES" {
+        leaguePlayers.experienced.append(player)
+    } else {
+        leaguePlayers.inexperienced.append(player)
+    }
+}
+
 repeat {
-    let sortedPlayers = createThreeTeamsFrom(players: players)
+    let sortedPlayers = createThreeTeamsFrom(players: leaguePlayers)
     
     teamDragons = sortedPlayers.teamA
     teamSharks = sortedPlayers.teamB
